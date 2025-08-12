@@ -114,8 +114,7 @@ public class Login extends JFrame {
                 String password = new String(Login.this.txtPassword.getPassword());
                 User user = conexion.loginAndGetUser(email, password);
                 if (user != null) {
-                    JOptionPane message = new JOptionPane();
-                    JOptionPane.showMessageDialog((Component)null, "Bienvenido " + user.getUserName());
+                    System.out.println("Bienvenido");
                     User.setCurrentUser(user);
                     Dashboard dashboard = new Dashboard();
                     dashboard.frame.setVisible(true);

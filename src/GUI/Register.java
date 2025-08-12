@@ -163,7 +163,7 @@ public class Register {
 
 					java.sql.Timestamp timestamp = java.sql.Timestamp.valueOf(user.getLastSesion().getDate());
 					stmt.setTimestamp(4, timestamp);
-					stmt.setInt(5, 1);
+					stmt.setString(5, null);
 
 					int filas = stmt.executeUpdate();
 					if (filas > 0) {

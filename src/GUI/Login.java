@@ -6,6 +6,7 @@
 package GUI;
 
 import App.conexion;
+import Modules.Email;
 import Modules.User;
 import java.awt.Color;
 import java.awt.Component;
@@ -16,6 +17,10 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -101,6 +106,35 @@ public class Login extends JFrame {
         chckbxNewCheckBox.setBounds(47, 308, 117, 21);
         panel_1.add(chckbxNewCheckBox);
         JLabel lblNewLabel_1 = new JLabel("Forgot password?");
+        
+        lblNewLabel_1.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                String email = JOptionPane.showInputDialog(
+                        null,
+                        "Escriba el correo electrónico asociado a su cuenta:",
+                        "Recuperar Contraseña",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+
+                if (email != null && !email.trim().isEmpty()) {
+                    // TODO: Reemplaza con tus credenciales de correo electrónico
+                    String senderEmail = "brailyrs03@gmail.com";
+                    String senderPassword = "gcxl lvmi pzoh kdof"; // Ojo: usa una contraseña de aplicación
+
+                    boolean correoEnviado = conexion.verificarUsuarioYEnviarCorreo(email, senderEmail, senderPassword);
+
+                    if (correoEnviado) {
+                        JOptionPane.showMessageDialog(null, "Se ha enviado un código de verificación a " + email);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "No se pudo enviar el correo. Verifica que el email sea correcto o inténtalo más tarde.");
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(null, "No se ingresó ningún correo.");
+                }
+            }
+        });
+        
         lblNewLabel_1.setBounds(233, 312, 113, 13);
         panel_1.add(lblNewLabel_1);
         JButton btnIngresar = new JButton("Ingresar");
@@ -108,14 +142,14 @@ public class Login extends JFrame {
         btnIngresar.setFont(new Font("Tahoma", 0, 17));
         btnIngresar.setBounds(147, 354, 117, 29);
         panel_1.add(btnIngresar);
+        
         btnIngresar.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
                 String email = Login.this.txtEmail.getText();
                 String password = new String(Login.this.txtPassword.getPassword());
                 User user = conexion.loginAndGetUser(email, password);
                 if (user != null) {
-                    JOptionPane message = new JOptionPane();
-                    JOptionPane.showMessageDialog((Component)null, "Bienvenido " + user.getUserName());
+                	System.out.println("Bienvenido");
                     User.setCurrentUser(user);
                     Dashboard dashboard = new Dashboard();
                     dashboard.frame.setVisible(true);

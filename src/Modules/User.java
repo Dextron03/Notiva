@@ -62,5 +62,12 @@ public class User {
     public static User getCurrentUser() {
         return currentUser;
     }
+    
+    public int getCurrentUserId() {
+    	return currentUser.getUserId();
+    }
+    
+    
+    
    
 }

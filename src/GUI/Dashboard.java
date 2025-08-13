@@ -3,322 +3,277 @@ package GUI;
 import App.conexion;
 import GUI.notas.notasFeedInicio;
 import GUI.tareas.*;
-
-import javax.swing.JFrame;
-import javax.swing.JToolBar;
-
 import GUI.feed.Feed;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.data.general.DefaultPieDataset;
 
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.Color;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import Modules.User;
 
 public class Dashboard {
 
-	JFrame frame;
-	private JLabel tareasPendientes;
-	private JLabel tareasCreadas;
-	private JLabel tareasRealizadas;
-	private JLabel tareasConjunto;
-	private DefaultPieDataset pie;
-	private ChartPanel chartPanel;
+    JFrame frame;
+    private JLabel tareasPendientes;
+    private JLabel tareasCreadas;
+    private JLabel tareasRealizadas;
+    private JLabel tareasConjunto;
+    private DefaultPieDataset pie;
+    private ChartPanel chartPanel;
+    private User idUsuario;
 
-	public Dashboard() {
-		initialize();
-	}
+    public Dashboard() {
+        this.idUsuario = User.getCurrentUser();
+        initialize();
+    }
 
-	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 938, 557);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+    private void initialize() {
+        frame = new JFrame();
+        frame.setBounds(100, 100, 938, 557);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.getContentPane().setLayout(null);
 
-		JToolBar toolBar = new JToolBar();
-		toolBar.setBounds(0, 0, 924, 21);
-		toolBar.setToolTipText("");
-		frame.getContentPane().add(toolBar);
+        JToolBar toolBar = new JToolBar();
+        toolBar.setBounds(0, 0, 924, 21);
+        frame.getContentPane().add(toolBar);
 
-		JButton btnNewButton = new JButton("Dashboard");
-		toolBar.add(btnNewButton);
+        JButton btnDashboard = new JButton("Dashboard");
+        toolBar.add(btnDashboard);
 
-		JButton btnNewButton_4 = new JButton("feed");
-		toolBar.add(btnNewButton_4);
+        JButton btnFeed = new JButton("Feed");
+        toolBar.add(btnFeed);
+        btnFeed.addActionListener(e -> {
+            Feed mostrarFeed = new Feed();
+            mostrarFeed.setVisible(true);
+        });
 
-		btnNewButton_4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Feed mostrarFeed = new Feed();
-				mostrarFeed.setVisible(true);
-			}
-		});
+        JButton btnTareas = new JButton("Tareas");
+        toolBar.add(btnTareas);
+        btnTareas.addActionListener(e -> {
+            tareasFeedInicio ventanaFeed = new tareasFeedInicio();
+            ventanaFeed.setVisible(true);
+        });
 
-		JButton btnNewButton_1 = new JButton("Tareas");
-		toolBar.add(btnNewButton_1);
-		
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tareasFeedInicio ventanaFeed = new tareasFeedInicio();
-				ventanaFeed.setVisible(true);
-			}
-		});
-		
+        JButton btnNotas = new JButton("Notas");
+        toolBar.add(btnNotas);
+        btnNotas.addActionListener(e -> {
+            notasFeedInicio ventananotas = new notasFeedInicio();
+            ventananotas.setVisible(true);
+        });
 
-		JButton btnNewButton_2 = new JButton("Notas");
-		toolBar.add(btnNewButton_2);
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				notasFeedInicio ventananotas = new notasFeedInicio();
-				ventananotas.setVisible(true);
-			}
-		});
+        JButton btnPerfil = new JButton("Perfil");
+        toolBar.add(btnPerfil);
+        btnPerfil.addActionListener(e -> {
+            datosPersonales ventana = new datosPersonales();
+            ventana.setVisible(true);
+        });
 
-		JButton btnNewButton_3 = new JButton("Perfil");
-		toolBar.add(btnNewButton_3);
+        JButton btnCerrarSesion = new JButton("Cerrar sesión");
+        toolBar.add(btnCerrarSesion);
+        btnCerrarSesion.addActionListener(e -> {
+            int opcion = JOptionPane.showConfirmDialog(frame, "¿Estás seguro?", "Cerrar sesión",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            if (opcion == JOptionPane.YES_OPTION) {
+                Login cerrarSesion = new Login();
+                cerrarSesion.frame.setVisible(true);
+                frame.dispose();
+            }
+        });
 
-		btnNewButton_3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				datosPersonales ventana = new datosPersonales();
-				ventana.setVisible(true);
-			}
-		});
+        // Panel Tareas Pendientes
+        JPanel panelPendientes = new JPanel();
+        panelPendientes.setBackground(Color.WHITE);
+        panelPendientes.setBounds(27, 98, 201, 133);
+        panelPendientes.setLayout(null);
+        frame.getContentPane().add(panelPendientes);
 
-		JButton btnNewButton_5 = new JButton("Cerrar sesion");
-		toolBar.add(btnNewButton_5);
+        JLabel lblPendientes = new JLabel("Tareas pendientes");
+        lblPendientes.setFont(new Font("Tahoma", Font.BOLD, 11));
+        lblPendientes.setBounds(10, 20, 150, 21);
+        panelPendientes.add(lblPendientes);
 
-		btnNewButton_5.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				int opcion = JOptionPane.showConfirmDialog(frame, "¿Estás seguro?", "Cerrar sesión", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			        if (opcion == JOptionPane.YES_OPTION) {
-			            Login cerrarSesion = new Login();
-			            cerrarSesion.frame.setVisible(true);
-			            frame.dispose();
-			        }
-			}
-		});
+        tareasPendientes = new JLabel("0");
+        tareasPendientes.setFont(new Font("Tahoma", Font.BOLD, 36));
+        tareasPendientes.setBounds(20, 43, 100, 31);
+        panelPendientes.add(tareasPendientes);
 
-		JPanel panel = new JPanel();
-		panel.setBackground(new Color(255, 255, 255));
-		panel.setBounds(27, 98, 201, 133);
-		frame.getContentPane().add(panel);
-		panel.setLayout(null);
+        pie = new DefaultPieDataset();
+        obtenerTareasPendientes();
 
-		JLabel lblNewLabel_1 = new JLabel("Tareas pendientes");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_1.setBounds(10, 20, 115, 21);
-		panel.add(lblNewLabel_1);
-		pie = new DefaultPieDataset();
-		tareasPendientes = new JLabel("10");
-		tareasPendientes.setFont(new Font("Tahoma", Font.BOLD, 36));
-		tareasPendientes.setBounds(20, 43, 46, 31);
-		panel.add(tareasPendientes);
+        // Panel Tareas Creadas
+        JPanel panelCreadas = new JPanel();
+        panelCreadas.setBackground(Color.WHITE);
+        panelCreadas.setBounds(250, 98, 201, 133);
+        panelCreadas.setLayout(null);
+        frame.getContentPane().add(panelCreadas);
 
-		Connection connec = App.conexion.obtenerConexion();
-		if(connec ==  null) {
-			javax.swing.JOptionPane.showMessageDialog(frame,
-					"Pendiente noo se pudo conectar a la base de datos",
-					"Error",
-					javax.swing.JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		String queryyyy = "SELECT COUNT(*) AS TOTAL FROM tarea WHERE fecha_expiracion >= CURDATE()";
-		try(PreparedStatement statement = connec.prepareStatement(queryyyy)) {
-			ResultSet rs = statement.executeQuery();
-			if(rs.next()) {
-				int totalpendiente  = rs.getInt("TOTAL");
-				tareasPendientes.setText(String.valueOf(totalpendiente));
-				pie.setValue("tareaspendientes", totalpendiente);
-			}
-			rs.close();
-		} catch (SQLException error) {
-			javax.swing.JOptionPane.showMessageDialog(frame,
-					"No se pudo conectar con la base de datos",
-					"Error",
-					javax.swing.JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		finally {
-			App.conexion.cerrarConexion(connec);
-		}
+        JLabel lblCreadas = new JLabel("Tareas Creadas");
+        lblCreadas.setFont(new Font("Tahoma", Font.BOLD, 11));
+        lblCreadas.setBounds(10, 23, 150, 13);
+        panelCreadas.add(lblCreadas);
 
+        tareasCreadas = new JLabel("0");
+        tareasCreadas.setFont(new Font("Tahoma", Font.BOLD, 36));
+        tareasCreadas.setBounds(10, 38, 100, 36);
+        panelCreadas.add(tareasCreadas);
 
-		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(new Color(255, 255, 255));
-		panel_1.setBounds(250, 98, 201, 133);
-		frame.getContentPane().add(panel_1);
-		panel_1.setLayout(null);
+        obtenerTareasCreadas();
 
-		JLabel lblNewLabel_1_1 = new JLabel("Tareas Creadas");
-		lblNewLabel_1_1.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_1_1.setBounds(10, 23, 102, 13);
-		panel_1.add(lblNewLabel_1_1);
+        // Panel Tareas Realizadas
+        JPanel panelRealizadas = new JPanel();
+        panelRealizadas.setBackground(Color.WHITE);
+        panelRealizadas.setBounds(475, 98, 201, 133);
+        panelRealizadas.setLayout(null);
+        frame.getContentPane().add(panelRealizadas);
 
-		tareasCreadas = new JLabel("0");
-		tareasCreadas.setFont(new Font("Tahoma", Font.BOLD, 36));
-		tareasCreadas.setBounds(10, 38, 46, 36);
-		panel_1.add(tareasCreadas);
+        JLabel lblRealizadas = new JLabel("Tareas Realizadas");
+        lblRealizadas.setFont(new Font("Tahoma", Font.BOLD, 11));
+        lblRealizadas.setBounds(10, 20, 150, 13);
+        panelRealizadas.add(lblRealizadas);
 
-			Connection conn = App.conexion.obtenerConexion();
-			if(conn ==  null) {
-				javax.swing.JOptionPane.showMessageDialog(frame,
-						"Creadas no se pudo conectar a la base de datos",
-						"Error",
-						javax.swing.JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			String query = "SELECT COUNT(*) AS TOTAL FROM tarea";
-			try(PreparedStatement statement = conexion.obtenerConexion().prepareStatement(query)) {
-				ResultSet rs = statement.executeQuery();
-				if(rs.next()) {
-					int totalcreadas  = rs.getInt("TOTAL");
-					tareasCreadas.setText(String.valueOf(totalcreadas));
-					pie.setValue("tareascreadas", totalcreadas);
-				}
-				rs.close();
-	} catch (SQLException error) {
-				javax.swing.JOptionPane.showMessageDialog(frame,
-						"No se pudo conectar con la base de datos",
-						"Error",
-						javax.swing.JOptionPane.ERROR_MESSAGE);
-				return;
-		}
-			finally {
-				App.conexion.cerrarConexion(conn);
-			}
+        tareasRealizadas = new JLabel("0");
+        tareasRealizadas.setFont(new Font("Tahoma", Font.BOLD, 36));
+        tareasRealizadas.setBounds(10, 44, 100, 36);
+        panelRealizadas.add(tareasRealizadas);
 
-		JPanel panel_2 = new JPanel();
-		panel_2.setBackground(new Color(255, 255, 255));
-		panel_2.setBounds(475, 98, 201, 133);
-		frame.getContentPane().add(panel_2);
-		panel_2.setLayout(null);
+        obtenerTareasRealizadas();
 
-		JLabel lblNewLabel_1_2 = new JLabel("Tareas Realizadas");
-		lblNewLabel_1_2.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_1_2.setBounds(10, 20, 103, 13);
-		panel_2.add(lblNewLabel_1_2);
+        // Panel Tareas en Conjunto
+        JPanel panelConjunto = new JPanel();
+        panelConjunto.setBackground(Color.WHITE);
+        panelConjunto.setBounds(698, 98, 201, 133);
+        panelConjunto.setLayout(null);
+        frame.getContentPane().add(panelConjunto);
 
-		tareasRealizadas = new JLabel("0");
-		tareasRealizadas.setFont(new Font("Tahoma", Font.BOLD, 36));
-		tareasRealizadas.setBounds(10, 44, 46, 36);
-		panel_2.add(tareasRealizadas);
-		Connection con = App.conexion.obtenerConexion();
-		if(con ==  null) {
-			javax.swing.JOptionPane.showMessageDialog(frame,
-					"No se pudo conectar a la base de datos",
-					"Error",
-					javax.swing.JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		String queryy = "SELECT COUNT(*) AS TOTAL FROM tarea WHERE fecha_expiracion < CURDATE()";
-		try(PreparedStatement statement = con.prepareStatement(queryy)) {
-			ResultSet rs = statement.executeQuery();
-			if(rs.next()) {
-				int totalrealizadas  = rs.getInt("TOTAL");
-				tareasRealizadas.setText(String.valueOf(totalrealizadas));
-				pie.setValue("tareasrealizadas", totalrealizadas);
-			}
-			rs.close();
-		} catch (SQLException error) {
-			javax.swing.JOptionPane.showMessageDialog(frame,
-					"No se pudo conectar con la base de datos",
-					"Error",
-					javax.swing.JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		finally {
-			App.conexion.cerrarConexion(con);
-		}
+        JLabel lblConjunto = new JLabel("Tareas en conjunto");
+        lblConjunto.setFont(new Font("Tahoma", Font.BOLD, 11));
+        lblConjunto.setBounds(10, 21, 150, 13);
+        panelConjunto.add(lblConjunto);
 
-		JPanel panel_3 = new JPanel();
-		panel_3.setBackground(new Color(255, 255, 255));
-		panel_3.setBounds(698, 98, 201, 133);
-		frame.getContentPane().add(panel_3);
-		panel_3.setLayout(null);
+        tareasConjunto = new JLabel("0");
+        tareasConjunto.setFont(new Font("Tahoma", Font.BOLD, 36));
+        tareasConjunto.setBounds(10, 45, 100, 36);
+        panelConjunto.add(tareasConjunto);
 
-		JLabel lblNewLabel_1_3 = new JLabel("Tareas en conjunto");
-		lblNewLabel_1_3.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblNewLabel_1_3.setBounds(10, 21, 118, 13);
-		panel_3.add(lblNewLabel_1_3);
+        obtenerTareasConjunto();
 
-		tareasConjunto = new JLabel("0");
-		tareasConjunto.setFont(new Font("Tahoma", Font.BOLD, 36));
-		tareasConjunto.setBounds(10, 45, 46, 36);
-		panel_3.add(tareasConjunto);
-		Connection conne = App.conexion.obtenerConexion();
-		if(conne ==  null) {
-			javax.swing.JOptionPane.showMessageDialog(frame,
-					"Conjunto no se pudo conectar a la base de datos",
-					"Error",
-					javax.swing.JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		String queryyy = "SELECT COUNT(*) AS TOTAL FROM tarea_compartida";
-		try(PreparedStatement statement = conexion.obtenerConexion().prepareStatement(queryyy)) {
-			ResultSet rs = statement.executeQuery();
-			if(rs.next()) {
-				int totalconjunto  = rs.getInt("TOTAL");
-				tareasConjunto.setText(String.valueOf(totalconjunto));
-				pie.setValue("tareaconjunto", totalconjunto);
-			}
-			rs.close();
-		} catch (SQLException error) {
-			javax.swing.JOptionPane.showMessageDialog(frame,
-					"No se pudo conectar con la base de datos",
-					"Error",
-					javax.swing.JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		finally {
-			App.conexion.cerrarConexion(conne);
-		}
+        JLabel lblTitulo = new JLabel("Dashboard");
+        lblTitulo.setFont(new Font("Tahoma", Font.PLAIN, 19));
+        lblTitulo.setBounds(27, 64, 128, 21);
+        frame.getContentPane().add(lblTitulo);
 
-		JLabel lblNewLabel = new JLabel("Dashboard");
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 19));
-		lblNewLabel.setBounds(27, 64, 128, 21);
-		frame.getContentPane().add(lblNewLabel);
+        actualizarGrafico();
 
-		pie = new DefaultPieDataset();
-		actualizarGrafico();
+        JFreeChart chart = ChartFactory.createPieChart("Resumen de tareas", pie, true, true, false);
+        chartPanel = new ChartPanel(chart);
+        chartPanel.setBounds(10, 252, 474, 268);
+        frame.getContentPane().add(chartPanel);
+    }
 
-		JFreeChart chart = ChartFactory.createPieChart("Resumen de tareas", pie, true, true, false);
+    private void obtenerTareasPendientes() {
+        String query = "SELECT COUNT(*) AS TOTAL FROM tareausuario tus " +
+                "LEFT JOIN tarea ta ON tus.id_tarea = ta.id_tarea " +
+                "LEFT JOIN estadoTarea esT ON esT.id_estado = tus.estadoTarea " +
+                "WHERE esT.estado = 'pendiente' AND tus.id_usuario = ?";
+        try (Connection con = conexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setInt(1, idUsuario.getCurrentUserId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int total = rs.getInt("TOTAL");
+                tareasPendientes.setText(String.valueOf(total));
+                pie.setValue("Tareas pendientes", total);
+            }
+        } catch (SQLException e) {
+            mostrarError("Pendiente");
+        }
+    }
 
-		ChartPanel chartPanel = new ChartPanel(chart);
-		chartPanel.setBounds(10, 252, 474, 268);
-		chartPanel.setVisible(true);
-		chartPanel.repaint();
-		frame.getContentPane().add(chartPanel);
+    private void obtenerTareasCreadas() {
+        String query = "SELECT COUNT(*) AS TOTAL FROM tareausuario WHERE id_usuario = ?";
+        try (Connection con = conexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setInt(1, idUsuario.getCurrentUserId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int total = rs.getInt("TOTAL");
+                tareasCreadas.setText(String.valueOf(total));
+                pie.setValue("Tareas creadas", total);
+            }
+        } catch (SQLException e) {
+            mostrarError("Creadas");
+        }
+    }
 
-	}
+    private void obtenerTareasRealizadas() {
+        String query = "SELECT COUNT(*) AS TOTAL FROM tareausuario tus " +
+                "LEFT JOIN tarea ta ON tus.id_tarea = ta.id_tarea " +
+                "LEFT JOIN estadoTarea esT ON esT.id_estado = tus.estadoTarea " +
+                "WHERE esT.estado = 'realizadas' AND tus.id_usuario = ?";
+        try (Connection con = conexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setInt(1, idUsuario.getCurrentUserId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int total = rs.getInt("TOTAL");
+                tareasRealizadas.setText(String.valueOf(total));
+                pie.setValue("Tareas realizadas", total);
+            }
+        } catch (SQLException e) {
+            mostrarError("Realizadas");
+        }
+    }
 
-	// se  obtienen los datos de los paneles y los refleja en la grafica
-	private void actualizarGrafico() {
-		int pendientes = obtenerValorNumerico(tareasPendientes);
-		int creadas = obtenerValorNumerico(tareasCreadas);
-		int realizadas = obtenerValorNumerico(tareasRealizadas);
-		int conjunto = obtenerValorNumerico(tareasConjunto);
+    private void obtenerTareasConjunto() {
+        String query = "SELECT COUNT(*) AS TOTAL FROM tarea_compartida tc " +
+                "LEFT JOIN tareausuario tu ON tu.id_tarea = tc.id_tarea " +
+                "LEFT JOIN estadoTarea est ON est.id_estado = tu.estadoTarea " +
+                "WHERE est.estado = 'compartida' AND tu.id_usuario = ?";
+        try (Connection con = conexion.obtenerConexion();
+             PreparedStatement stmt = con.prepareStatement(query)) {
+            stmt.setInt(1, idUsuario.getCurrentUserId());
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int total = rs.getInt("TOTAL");
+                tareasConjunto.setText(String.valueOf(total));
+                pie.setValue("Tareas conjunto", total);
+            }
+        } catch (SQLException e) {
+            mostrarError("Conjunto");
+        }
+    }
 
-		pie.setValue("Tareas pendientes", pendientes);
-		pie.setValue("Tareas Creadas", creadas);
-		pie.setValue("Tareas Realizadas", realizadas);
-		pie.setValue("Tareas conjunto", conjunto);
-	}
-	private int obtenerValorNumerico(JLabel label) {
-		try {
-			return Integer.parseInt(label.getText().trim());
-		} catch (NumberFormatException e) {
-			return 0;
-		}
-	}
+    private void mostrarError(String tipo) {
+        JOptionPane.showMessageDialog(frame,
+                tipo + " no se pudo conectar a la base de datos",
+                "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private void actualizarGrafico() {
+        int pendientes = obtenerValorNumerico(tareasPendientes);
+        int creadas = obtenerValorNumerico(tareasCreadas);
+        int realizadas = obtenerValorNumerico(tareasRealizadas);
+        int conjunto = obtenerValorNumerico(tareasConjunto);
+
+        pie.setValue("Tareas pendientes", pendientes);
+        pie.setValue("Tareas creadas", creadas);
+        pie.setValue("Tareas realizadas", realizadas);
+        pie.setValue("Tareas conjunto", conjunto);
+    }
+
+    private int obtenerValorNumerico(JLabel label) {
+        try {
+            return Integer.parseInt(label.getText().trim());
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
 }

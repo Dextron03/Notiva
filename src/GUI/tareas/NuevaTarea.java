@@ -27,6 +27,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerDateModel;
+import Modules.CategoriaItem;
 
 public class NuevaTarea extends JFrame {
     private JTextField textField;
@@ -138,19 +139,5 @@ public class NuevaTarea extends JFrame {
 
             }
         });
-    }
-
-    class CategoriaItem {
-        int id;
-        String nombre;
-
-        public CategoriaItem(int id, String nombre) {
-            this.id = id;
-            this.nombre = nombre;
-        }
-
-        public String toString() {
-            return this.nombre;
-        }
     }
 }

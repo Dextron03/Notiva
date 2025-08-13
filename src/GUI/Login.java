@@ -113,14 +113,17 @@ public class Login extends JFrame {
                 );
 
                 if (email != null && !email.trim().isEmpty()) {
-                    // TODO: Reemplaza con tus credenciales de correo electrónico
                     String senderEmail = "brailyrs03@gmail.com";
-                    String senderPassword = "gcxl lvmi pzoh kdof"; // Ojo: usa una contraseña de aplicación
+                    String senderPassword = "gcxl lvmi pzoh kdof";
 
                     boolean correoEnviado = conexion.verificarUsuarioYEnviarCorreo(email, senderEmail, senderPassword);
 
                     if (correoEnviado) {
                         JOptionPane.showMessageDialog(null, "Se ha enviado un código de verificación a " + email);
+                        
+                        CodigoVerificacion verficacionWindows = new CodigoVerificacion();
+                        verficacionWindows.frame.setVisible(true);
+                        
                     } else {
                         JOptionPane.showMessageDialog(null, "No se pudo enviar el correo. Verifica que el email sea correcto o inténtalo más tarde.");
                     }

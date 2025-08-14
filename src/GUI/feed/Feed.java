@@ -118,7 +118,7 @@ public class Feed extends JFrame {
     private void initialize() {
         this.setTitle("Feed");
         this.setBounds(100, 100, 940, 560);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         this.getContentPane().setLayout(null);
 
         JPanel panelLateral = new JPanel();

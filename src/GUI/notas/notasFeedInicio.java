@@ -8,11 +8,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import Modules.User;
 
 public class notasFeedInicio extends JFrame {
     private JPanel panelNotas;
     private JScrollPane scrollPane;
     private int posicionY = 0;
+    private User idUsuario;
 
     private JPanel notaSeleccionada = null;
     private Map<JPanel, NotaData> notaPanelDataMap = new HashMap<>();
@@ -20,6 +22,7 @@ public class notasFeedInicio extends JFrame {
     public notasFeedInicio() {
         getContentPane().setBackground(Color.WHITE);
         initialize();
+        this.idUsuario = User.getCurrentUser();
         cargarNotasDesdeBD();
     }
 
@@ -162,7 +165,9 @@ public class notasFeedInicio extends JFrame {
     public void cargarNotasDesdeBD() {
         try (Connection cx = App.conexion.obtenerConexion()) {
             PreparedStatement ps = cx.prepareStatement(
-                    "SELECT titulo, fecha_creacion FROM notas ORDER BY fecha_creacion DESC");
+                    "SELECT titulo, fecha_creacion FROM notas WHERE propietario = ? AND propietario != null ORDER BY fecha_creacion DESC");
+            
+           ps.setInt(1, idUsuario.getCurrentUserId());
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 String titulo = rs.getString("titulo");
